@@ -1,0 +1,7 @@
+-in:file:fullatom
+-out:file:fullatom
+-database /Users/id21628/Downloads/rosetta_bin_mac_2021.16.61629_bundle/main/database/
+-linmem_ig 10
+-ex1
+-ex2
+-nstruct 10
