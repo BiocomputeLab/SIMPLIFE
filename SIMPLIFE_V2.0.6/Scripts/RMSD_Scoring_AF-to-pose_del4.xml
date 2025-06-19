@@ -1,0 +1,42 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="scorefxn1" weights="ref2015" />
+	</SCOREFXNS>
+	<RESIDUE_SELECTORS>
+		<Chain name="chA" chains="A"/>
+	</RESIDUE_SELECTORS>
+	<SIMPLE_METRICS>
+		RMSDMetric name="rmsd" rmsd_type="rmsd_all" residue_selector="chA" reference_name="current" 
+	</SIMPLE_METRICS>
+	<FILTERS>
+		<Rmsd name="rmsd_filter" reference_name="DTGref" chains="A" superimpose="1" threshold="5" confidence="0" />
+    </FILTERS>
+	<MOVERS>
+		<SavePoseMover name="save_current" reference_name="current"/>
+		<SavePoseMover name="load_referencestructure" restore_pose="1" reference_name="Ref_structure" pdb_file="%%reference%%"/>
+		<SavePoseMover name="save_referencestructure" reference_name="DTGref"/>
+		<SavePoseMover name="restore_current" restore_pose="1" reference_name="current"/>
+		
+		<DeleteChainsMover name="delextrachains" chains="BCD" detect_bonds="0" detect_pseudobonds="0" />
+		<DeleteChainsMover name="delAFchains" chains="B" detect_bonds="0" detect_pseudobonds="0" />
+		<DumpPdb name="dump1" scorefxn="scorefxn1" fname="AFdelB.pdb"/>
+		<DumpPdb name="dump2" scorefxn="scorefxn1" fname="RefDelBC"/>
+ 
+		RunSimpleMetrics name="run_metrics1" metrics="rmsd" prefix="rmsd_" 
+		
+	</MOVERS>
+	<PROTOCOLS>
+		<Add mover_name="delAFchains" />
+		<Add mover_name="dump1" />
+		<Add mover_name="save_current" />
+		<Add mover_name="load_referencestructure"/>
+		<Add mover_name="delextrachains"/>
+		<Add mover_name="save_referencestructure"/>
+		<Add mover_name="dump2" />
+		<Add mover_name="restore_current"/>
+		Add filter="rmsd_filter_dogtag"
+		<Add filter="rmsd_filter"/>
+		Add mover_name="run_metrics1"
+	</PROTOCOLS>
+	<OUTPUT scorefxn="scorefxn1" />
+</ROSETTASCRIPTS>

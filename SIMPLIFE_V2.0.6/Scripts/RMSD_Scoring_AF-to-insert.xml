@@ -1,0 +1,36 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="scorefxn1" weights="ref2015" />
+	</SCOREFXNS>
+	<RESIDUE_SELECTORS>
+	</RESIDUE_SELECTORS>
+	<SIMPLE_METRICS>
+	</SIMPLE_METRICS>
+	<FILTERS>
+		<Rmsd name="rmsd_filter_insert" reference_name="DTGref" superimpose_on_all="1" superimpose="1" threshold="2.5" confidence="0"/>
+		
+    	</FILTERS>
+	<MOVERS>
+		<SavePoseMover name="save_current" reference_name="current"/>
+		<SavePoseMover name="load_referencestructure" restore_pose="1" reference_name="Ref_structure" pdb_file="%%reference%%"/>
+		<KeepRegionMover name="Insert_in_Ref" start="%%start%%" end="%%end%%" nter_overhang="0" cter_overhang="0"/>
+		<SavePoseMover name="save_referencestructure" reference_name="DTGref"/>
+		<SavePoseMover name="restore_current" restore_pose="1" reference_name="current"/>
+		<KeepRegionMover name="Insert_in_AF" start="%%start%%" end="%%end%%" nter_overhang="0" cter_overhang="0"/>
+	
+	</MOVERS>
+	<PROTOCOLS>
+		<Add mover_name="save_current" />
+		<Add mover_name="load_referencestructure"/>
+		<Add mover_name="Insert_in_Ref"/>
+		<Add mover_name="save_referencestructure"/>
+		<Add mover_name="restore_current"/>
+		<Add mover_name="Insert_in_AF"/>
+		<Add mover_name="save_current"/>
+		<Add mover_name="restore_current"/>
+		<Add filter="rmsd_filter_insert"/>
+		
+		
+	</PROTOCOLS>
+	<OUTPUT scorefxn="scorefxn1" />
+</ROSETTASCRIPTS>
