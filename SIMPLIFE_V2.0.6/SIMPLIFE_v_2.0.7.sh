@@ -37,7 +37,9 @@ fi
 
 echo "Rosetta path set"
 
-export ROSETTA3=$rosettapath
+export ROSETTA3=$rosettapath 
+
+
 
 
 
@@ -82,22 +84,70 @@ for i in {1..9}; do
 done
 
 cd ../..
-pwd
 
 cp Scripts/Remodel_binX* Remodel
 cp Scripts/Make_Remodelscripts.py Remodel
 cp Scripts/jobs2run* Remodel
 cp Scripts/Parallel_jobscript* Remodel
-
-cp Input/Final_input_1cez.pdb Remodel
-cp Input/Final_input_1h38.pdb Remodel
-cp Input/1407_MinRelax_dual_Alphafold_ShortDogtagwithLinker_short.pdb Remodel
+cp Input/*.pdb Remodel
 
 cd Remodel
 
 Python3 Make_Remodelscripts.py
 
 parallel --jobs 9 < jobs2run
+
+####Parallelisation script normal functioning human beings would use instead
+
+
+##wait -n function
+wait-n ()
+{ StartJobs="$(jobs -p)"
+
+CurJobs="$(jobs -p)"
+while diff -q <(echo -e "$StartJobs") <(echo -e "$CurJobs") >/dev/null
+do
+	sleep 1
+	CurJobs="$(jobs -p)"
+done
+}
+
+
+
+
+**************
+
+N=10
+
+while IFS= read -r line; do
+	(###do commands here
+
+	name=$(echo $line | cut -d . -f 1-2)
+
+	echo $name
+
+	name=${name}.pdb
+
+	fname=${name/"scores"/"unrelaxed"}
+
+	$ROSETTA3/source/bin/rosetta_scripts.macosclangrelease -s $fname -parser:protocol ${Scripts}/REMODELSCRIPT 
+
+	sleep $(( (RANDOM %3) +1))
+
+	) &
+
+	if [[ $(jobs -r -p | wc -l) -ge $N ]] ; then 
+		wait-n 
+
+	fi 
+
+done < files_to_relax.txt
+
+wait 
+
+echo "all done"
+*********
+
 
 
 cd ..
@@ -122,24 +172,32 @@ cp recon_flags ../Recon/$runname
 
 cd ../Remodel
 
-#Start by copying output from Remodel into the Recon directory
+Start by copying output from Remodel into the Recon directory
 
 for n in Output*; do
     cp -r $n ../Recon/$runname
 done
 
-#move all Remodel output files to a new directory
+move all Remodel output files to a new directory
 cd ../Recon/$runname
+
 
 for j in {1..9}; do
     mkdir bin_$j
     mv Output_Input_$j* bin_$j
 done
 
+case $yn in
+	[Yy] ) 
+	Python3 Make_Reconscripts.py	
+	parallel --jobs 9 < reconjobs;;
+	[Nn] ) 
+	Python3 Make_singlestatescripts.py
+	parallel --jobs 9 < reconjobs;;
+	* ) "Faulty multistate parameter"
 
-Python3 Make_Reconscripts.py
+esac
 
-parallel --jobs 9 < reconjobs
 
 
 
