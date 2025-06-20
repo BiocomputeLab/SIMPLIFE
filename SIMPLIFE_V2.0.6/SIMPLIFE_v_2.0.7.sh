@@ -25,8 +25,19 @@ done
 echo $yn
 
 
+read -p "Enter path of the MAIN subdirectory in your downloaded Rosetta directory: " rosettapath
 
-#export ROSETTA3=/Users/id21628/Downloads/rosetta_bin_mac_2021.16.61629_bundle/main
+#Chech if file exist
+if [ ! -e "$rosettapath" ]
+then
+	echo "file does not exist"
+	exit
+fi 
+
+
+echo "Rosetta path set"
+
+export ROSETTA3=$rosettapath
 
 
 
